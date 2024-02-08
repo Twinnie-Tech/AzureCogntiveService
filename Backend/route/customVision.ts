@@ -4,7 +4,7 @@ import { getImageTags,getImageBrand,compareImageObject,checkAdultContent,checkCo
 const router = Router();
 router.route("/tags").post(getImageTags);
 router.route("/brands").post(getImageBrand);
-router.route("/comapre").post(compareImageObject);
+router.route("/compare").post(compareImageObject);
 router.route("/adultContent").post(checkAdultContent);
 router.route("/colorScheme").post(checkColorScheme);
 export default router;
