@@ -5,6 +5,7 @@ import axios from "axios";
 // import * as yup from "yup";
 import { useState,ChangeEvent } from "react";
 const TagForm = () => {
+  const {VITE_REACT_APP_CLOUDINARY_CLOUD_NAME,VITE_REACT_APP_CLOUDINARY_API_KEY,VITE_REACT_APP_CLOUDINARY_API_SECRET,VITE_REACT_APP_CLOUDINARY_UPLOAD_PRESET} = import.meta.env;
   const [image, setImage] = useState<File | null>(null);
   const [url, setUrl] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -32,18 +33,16 @@ const TagForm = () => {
   data.append("file", image);
   data.append(
     "upload_preset",
-    "e4kontfd" || ""
+   `${VITE_REACT_APP_CLOUDINARY_UPLOAD_PRESET}` || ""
   );
   data.append(
     "cloud_name",
-    "dxsqvb1eo" || ""
+    `${VITE_REACT_APP_CLOUDINARY_CLOUD_NAME}` || ""
   );
   data.append("folder", "ImageTags");
   try{
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${
-        "dxsqvb1eo"
-      }/image/upload`,
+      `https://api.cloudinary.com/v1_1/${VITE_REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`,
       {
         method: "POST",
         body: data,
@@ -66,7 +65,6 @@ const TagForm = () => {
     reader.readAsDataURL(file);
     reader.onload = () => {
       if (typeof reader.result === "string") {
-        console.log(reader.result);
         setPreview(reader.result);
       }
     };

@@ -45,8 +45,8 @@ dotenv_1.default.config({ path: "./.env" });
 //Keys
 const key = process.env.MS_COMPUTER_VISION_SUBSCRIPTION_KEY;
 const endpoint = process.env.MS_COMPUTER_VISION_ENDPOINT;
-const faceEndpoint = process.env.MS_FACE_ENDPOINT;
-const subscriptionKey = process.env.MS_FACE_SUB_KEY;
+// const faceEndpoint = process.env.MS_FACE_ENDPOINT;
+// const subscriptionKey = process.env.MS_FACE_SUB_KEY;
 let computerVisionClient;
 if (endpoint) {
     computerVisionClient = new cognitiveservices_computervision_1.ComputerVisionClient(new ms_rest_js_1.ApiKeyCredentials({ inHeader: { "Ocp-Apim-Subscription-Key": key } }), endpoint);
@@ -68,30 +68,18 @@ const upload = (0, multer_1.default)({
 });
 const getImageTags = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // console.log(req.body);
-        // const {image} = req.body;
-        // const name = image.split('/')[1];
-        // console.log(name);
+        const { image } = req.body;
         // Process the file here
-        // console.log('File uploaded successfully:', req.file);
-        // const result = await cloudinary.v2.uploader.upload(req.file.path);
-        const tagsURL = 'https://res.cloudinary.com/dxsqvb1eo/image/upload/v1707391413/ImageTags/y4r1smsdxbn5s273odpw.jpg';
+        const tagsURL = image;
         console.log('Analyzing tags in image...', tagsURL.split('/').pop());
         const tags = yield (yield computerVisionClient.analyzeImage(tagsURL, { visualFeatures: ['Tags'] })).tags;
-        console.log(computerVisionClient);
-        console.log((yield computerVisionClient.analyzeImage(tagsURL, { visualFeatures: ['Tags'] })).tags);
-        console.log(`Tags: ${formatTags(tags)}`);
-        function formatTags(tag) {
-            return tags.map(tag, (any) => (`${tag.name} (${tag.confidence.toFixed(2)})`)).join(', ');
-        }
-        // Your further processing logic
+        console.log(tags);
         res.status(200).json({
             status: "success",
-            data: formatTags(tags)
+            data: tags
         });
     }
     catch (error) {
-        console.log(error);
         res.status(400).json({
             status: "failure",
             error: error.message
@@ -99,31 +87,119 @@ const getImageTags = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.getImageTags = getImageTags;
-const getImageBrand = () => __awaiter(void 0, void 0, void 0, function* () {
+const getImageBrand = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const { image } = req.body;
+        // Process the file here
+        const brandsURL = image;
+        console.log('Analyzing Brands in image...', brandsURL.split('/').pop());
+        const brands = yield (yield computerVisionClient.analyzeImage(brandsURL, { visualFeatures: ['Brands'] })).brands;
+        //  console.log(computerVisionClient)
+        console.log(brands);
+        res.status(200).json({
+            status: "success",
+            data: brands
+        });
     }
     catch (error) {
+        res.status(400).json({
+            status: "failure",
+            error: error.message
+        });
     }
 });
 exports.getImageBrand = getImageBrand;
-const compareImageObject = () => __awaiter(void 0, void 0, void 0, function* () {
+const compareImageObject = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
+        let carCount = 1;
+        const { image } = req.body;
+        // Process the file here
+        const objectURL = image;
+        console.log('Analyzing  objects in  image...', objectURL.split('/').pop());
+        const objects = (yield computerVisionClient.analyzeImage(objectURL, {
+            visualFeatures: ["Objects"],
+        })).objects;
+        if (objects.length) {
+            console.log(`${objects.length} object${objects.length == 1 ? "" : "s"} found:`);
+            console.log((_a = objects[0]) === null || _a === void 0 ? void 0 : _a.object);
+            for (const obj of objects) {
+                if (obj.object === "car") {
+                    carCount = carCount + 1;
+                }
+            }
+            if (carCount > 0) {
+                res.status(200).json({
+                    status: "success",
+                    data: "car"
+                });
+            }
+        }
     }
     catch (error) {
+        res.status(400).json({
+            status: "failure",
+            error: error.message
+        });
     }
 });
 exports.compareImageObject = compareImageObject;
-const checkAdultContent = () => __awaiter(void 0, void 0, void 0, function* () {
+const checkAdultContent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const { image } = req.body;
+        const isIt = (flag) => flag ? 'is' : "isn't";
+        ;
+        // Process the file here
+        const adultURLImage = image;
+        // Analyze URL image
+        console.log('Analyzing image for color scheme...', adultURLImage.split('/').pop());
+        const adult = (yield computerVisionClient.analyzeImage(adultURLImage, {
+            visualFeatures: ['Adult']
+        })).adult;
+        console.log(`This probably ${isIt(adult.isAdultContent)} adult content (${adult.adultScore.toFixed(4)} score)`);
+        console.log(`This probably ${isIt(adult.isRacyContent)} racy content (${adult.racyScore.toFixed(4)} score)`);
+        console.log(adult);
+        if ((adult === null || adult === void 0 ? void 0 : adult.isAdultContent) == true) {
+            res.status(200).json({
+                status: "success",
+                data: "true"
+            });
+        }
+        else {
+            res.status(200).json({
+                status: "success",
+                data: "false"
+            });
+        }
     }
     catch (error) {
+        res.status(400).json({
+            status: "failure",
+            error: error.message
+        });
     }
 });
 exports.checkAdultContent = checkAdultContent;
-const checkColorScheme = () => __awaiter(void 0, void 0, void 0, function* () {
+const checkColorScheme = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const { image } = req.body;
+        // Process the file here
+        const colorURLImage = image;
+        // Analyze URL image
+        console.log('Analyzing image for color scheme...', colorURLImage.split('/').pop());
+        const color = (yield computerVisionClient.analyzeImage(colorURLImage, { visualFeatures: ['Color'] })).color;
+        //  console.log(computerVisionClient)
+        console.log(color);
+        res.status(200).json({
+            status: "success",
+            data: color === null || color === void 0 ? void 0 : color.dominantColors
+        });
     }
     catch (error) {
+        res.status(400).json({
+            status: "failure",
+            error: error.message
+        });
     }
 });
 exports.checkColorScheme = checkColorScheme;

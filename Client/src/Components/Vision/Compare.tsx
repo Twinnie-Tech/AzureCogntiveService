@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState,ChangeEvent } from "react";
 const Compare = () => {
+  const {VITE_REACT_APP_CLOUDINARY_CLOUD_NAME,VITE_REACT_APP_CLOUDINARY_API_KEY,VITE_REACT_APP_CLOUDINARY_API_SECRET,VITE_REACT_APP_CLOUDINARY_UPLOAD_PRESET} = import.meta.env;
   const [imageBrand, setImageBrand] = useState<File | null>(null);
   const [url, setUrl] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -15,14 +16,12 @@ const Compare = () => {
    }).then(response => {
     if(response.status) {
       const {data}= response.data;
-      console.log(data);
       setObservance(data);
-       console.log(observance);
     }else{
-      console.log("Error Something went wrong")
+      throw new Error("Error Something went wrong");
    }
   }).catch(err => {
-    console.log(err);
+    throw new Error(err);
    });
   }
   const uploadImage = async () => {
@@ -32,25 +31,22 @@ const Compare = () => {
   data.append("file", imageBrand);
   data.append(
     "upload_preset",
-    "e4kontfd" || ""
+   `${VITE_REACT_APP_CLOUDINARY_UPLOAD_PRESET}` || ""
   );
   data.append(
     "cloud_name",
-    "dxsqvb1eo" || ""
+    `${VITE_REACT_APP_CLOUDINARY_CLOUD_NAME}` || ""
   );
   data.append("folder", "ImageCompare");
   try{
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${
-        "dxsqvb1eo"
-      }/image/upload`,
+      `https://api.cloudinary.com/v1_1/${VITE_REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`,
       {
         method: "POST",
         body: data,
       }
     );
     const res = await response.json();
-    console.log(res.public_id)
     setUrl(res.secure_url);
     setLoading(false);
     await getTags(res.secure_url);
@@ -65,10 +61,8 @@ const Compare = () => {
     setImageBrand(file);
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    console.log(reader.result);
     reader.onload = () => {
       if (typeof reader.result === "string") {
-        console.log(reader.result);
         setPreview(reader.result);
       }
     };

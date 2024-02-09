@@ -5,7 +5,7 @@ const customVision_1 = require("../controler/customVision");
 const router = (0, express_1.Router)();
 router.route("/tags").post(customVision_1.getImageTags);
 router.route("/brands").post(customVision_1.getImageBrand);
-router.route("/comapre").post(customVision_1.compareImageObject);
+router.route("/compare").post(customVision_1.compareImageObject);
 router.route("/adultContent").post(customVision_1.checkAdultContent);
 router.route("/colorScheme").post(customVision_1.checkColorScheme);
 exports.default = router;
